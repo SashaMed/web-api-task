@@ -4,6 +4,7 @@ using Microsoft.Extensions.Configuration;
 using WebAPI.Extensions;
 using LoggerService;
 using NLog;
+using Microsoft.EntityFrameworkCore.Design;
 
 namespace WebAPI
 {
@@ -53,6 +54,8 @@ namespace WebAPI
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen();
             services.ConfigureLoggerService();
+            services.ConfigureSqlContext(Configuration);
+            services.ConfigureRepositoryManager();
             services.AddControllers();
         }
     }
