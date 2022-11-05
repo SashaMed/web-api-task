@@ -1,4 +1,5 @@
 ﻿using Contracts;
+using Contracts.IRepository;
 using Entities;
 using LoggerService;
 using Microsoft.EntityFrameworkCore;

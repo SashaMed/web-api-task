@@ -5,10 +5,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Contracts
+namespace Contracts.IRepository
 {
-    public interface IFridgeRepository
+    public interface IFridgeModelRepository
     {
-        IEnumerable<Fridge> GetAllFridges(bool trackChanges);
+        FridgeModel GetFridgeModel(Guid id, bool trackChanges);
     }
 }

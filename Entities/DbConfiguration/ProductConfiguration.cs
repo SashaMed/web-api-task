@@ -7,27 +7,29 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Entities
+namespace Entities.DbConfiguration
 {
-    internal class FridgeModelConfiguration : IEntityTypeConfiguration<FridgeModel>
+    internal class ProductConfiguration : IEntityTypeConfiguration<Product>
     {
-        public void Configure(EntityTypeBuilder<FridgeModel> builder)
+        public void Configure(EntityTypeBuilder<Product> builder)
         {
             builder.HasData(
-                    new FridgeModel
+                    new Product
                     {
                         Id = new Guid("c9d4c053-49b6-410c-bc78-2d54a9991870"),
-                        Name = "super atlant 40Byn/month",
-                        Year = 2018
+                        Name = "watermelon",
+                        Description = "yummy",
+                        DefaultQuantity = 1
+
                     },
-                    new FridgeModel
+                    new Product
                     {
                         Id = new Guid("3d490a70-94ce-4d15-9494-5248280c2ce3"),
-                        Name = "samsung ldt123",
-                        Year = 2023
+                        Name = "milk",
+                        Description = "",
+                        DefaultQuantity = 3
                     }
                 );
         }
     }
 }
-

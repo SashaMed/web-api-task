@@ -5,6 +5,7 @@ using WebAPI.Extensions;
 using LoggerService;
 using NLog;
 using Microsoft.EntityFrameworkCore.Design;
+using Contracts;
 
 namespace WebAPI
 {
@@ -19,7 +20,7 @@ namespace WebAPI
 
         public IConfiguration Configuration { get; private set; }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILoggerManager logger)
         {
             if (env.IsDevelopment())
             {
@@ -32,6 +33,7 @@ namespace WebAPI
                 app.UseHsts();
             }
 
+            app.ConfigureExceptionHandler(logger);
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCors("CorsPolicy");
@@ -56,6 +58,7 @@ namespace WebAPI
             services.ConfigureLoggerService();
             services.ConfigureSqlContext(Configuration);
             services.ConfigureRepositoryManager();
+            services.AddAutoMapper(typeof(Startup));
             services.AddControllers();
         }
     }
