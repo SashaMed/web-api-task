@@ -6,6 +6,7 @@ using LoggerService;
 using NLog;
 using Microsoft.EntityFrameworkCore.Design;
 using Contracts;
+using Microsoft.AspNetCore.Mvc;
 
 namespace WebAPI
 {
@@ -51,6 +52,10 @@ namespace WebAPI
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.Configure<ApiBehaviorOptions>(options =>
+            {
+                options.SuppressModelStateInvalidFilter = true;
+            });
             services.ConfigureCors();
             services.ConfigureIISIntegration();
             services.AddEndpointsApiExplorer();

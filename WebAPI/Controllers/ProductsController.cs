@@ -10,7 +10,7 @@ using Entities.Models;
 namespace WebAPI.Controllers
 {
     [Route("api/products")]
-    [ApiController]
+    //[ApiController]
     public class ProductsController : ControllerBase
     {
         private IRepositoryManager _repositoryManager;
@@ -33,7 +33,7 @@ namespace WebAPI.Controllers
         }
 
 
-        [HttpGet("{productId}")]
+        [HttpGet("{id}")]
         public IActionResult GetSingleProductByFridgeId( Guid productId)
         {
             var product = _repositoryManager.Products.GetProduct(productId, trackChanges: false);
@@ -45,6 +45,7 @@ namespace WebAPI.Controllers
             var productsDto = _mapper.Map<ProductDto>(product);
             return Ok(productsDto);
         }
+
 
         [HttpPost("{fridgeId}")]
         public IActionResult CreateProduct(Guid fridgeId, [FromBody] ProductCreationDto product)
@@ -62,6 +63,12 @@ namespace WebAPI.Controllers
                 return NotFound();
             }
 
+            if (!ModelState.IsValid)
+            {
+                _logger.LogError("Invalid model state for the ProductCreationDto object");
+                return UnprocessableEntity(ModelState);
+            }
+
             var productEntity = _mapper.Map<Product>(product);
             _repositoryManager.Products.CreateProduct(productEntity);
             _repositoryManager.FridgeProducts.CreateFridgeProduct(productEntity.Id, fridgeId);
@@ -71,6 +78,7 @@ namespace WebAPI.Controllers
 
             return CreatedAtRoute("CreateProduct", new { fridgeId, id = toReturn.Id }, toReturn);
         }
+
 
         [HttpDelete("{id}")]
         public IActionResult DeleteProduct(Guid id)
@@ -83,6 +91,34 @@ namespace WebAPI.Controllers
             }
 
             _repositoryManager.Products.DeleteProduct(product);
+            _repositoryManager.Save();
+            return NoContent();
+        }
+
+
+        [HttpPut("{id}")]
+        public IActionResult UpdateProduct(Guid id, [FromBody] ProductCreationDto product)
+        {
+            if (product == null)
+            {
+                _logger.LogError("ProductCreationDto object sent from client is null.");
+                return BadRequest("ProductCreationDto object is null.");
+            }
+
+            var productEntity = _repositoryManager.Products.GetProduct(id, true);
+            if (productEntity == null)
+            {
+                _logger.LogInfo($"Product with id: {id} doesn't exist in the database.");
+                return NotFound();
+            }
+
+            if (!ModelState.IsValid)
+            {
+                _logger.LogError("Invalid model state for the ProductCreationDto object");
+                return UnprocessableEntity(ModelState);
+            }
+
+            _mapper.Map(product, productEntity);
             _repositoryManager.Save();
             return NoContent();
         }

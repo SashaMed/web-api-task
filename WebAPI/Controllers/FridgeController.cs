@@ -12,7 +12,7 @@ using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 namespace WebAPI.Controllers
 {
     [Route("api/fridges")]
-    [ApiController]
+    //[ApiController]
     public class FridgeController : ControllerBase
     {
         private IRepositoryManager _repositoryManager;
@@ -34,7 +34,9 @@ namespace WebAPI.Controllers
             return Ok(fridgesDto);
         }
 
-        [HttpGet("{fridgeId}/products", Name = "CreateProduct")]
+
+
+        [HttpGet("{id}/products", Name = "CreateProduct")]
         public IActionResult GetProductsByFridgeId(Guid fridgeId)
         {
             var fridge = _repositoryManager.Fridge.GetFridge(fridgeId, trackChanges: false);
@@ -65,6 +67,7 @@ namespace WebAPI.Controllers
             return Ok(fridgeDto);
         }
 
+
         [HttpPost]
         public IActionResult CreateFridge([FromBody] FridgeCreationDto fridge)
         {
@@ -73,10 +76,16 @@ namespace WebAPI.Controllers
                 _logger.LogError("FridgeCreationDto object sent from client is null.");
                 return BadRequest("FridgeCreationDto object is null.");
             }
+
+            if (!ModelState.IsValid)
+            {
+                _logger.LogError("Invalid model state for the FridgeCreationDto object");
+                return UnprocessableEntity(ModelState);
+            }
+
             var fridgeEntity = _mapper.Map<Fridge>(fridge);
 
             _repositoryManager.Fridge.CreateFridge(fridgeEntity);
-            fridgeEntity.FridgeModelId = new Guid("c9d4c053-49b6-410c-bc78-2d54a9991870");
             _repositoryManager.Save();
 
             var toReturn = _mapper.Map<FridgeDto>(fridgeEntity);
@@ -97,6 +106,34 @@ namespace WebAPI.Controllers
             _repositoryManager.Fridge.DeleteFridge(fridge);
             _repositoryManager.Save();
 
+            return NoContent();
+        }
+
+
+        [HttpPut("{id}")]
+        public IActionResult UpdateFridge(Guid id, [FromBody] FridgeCreationDto fridge)
+        {
+            if (fridge == null)
+            {
+                _logger.LogError("FridgeCreationDto object sent from client is null.");
+                return BadRequest("FridgeCreationDto object is null.");
+            }
+            
+            var fridgeEntity = _repositoryManager.Fridge.GetFridge(id, true);
+            if (fridgeEntity == null)
+            {
+                _logger.LogInfo($"Fridge with id: {id} doesn't exist in the database.");
+                return NotFound();
+            }
+
+            if (!ModelState.IsValid)
+            {
+                _logger.LogError("Invalid model state for the FridgeCreationDto object");
+                return UnprocessableEntity(ModelState);
+            }
+
+            _mapper.Map(fridge, fridgeEntity);
+            _repositoryManager.Save();
             return NoContent();
         }
         
