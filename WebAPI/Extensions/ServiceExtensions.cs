@@ -27,11 +27,11 @@ namespace WebAPI.Extensions
             services.AddScoped<ILoggerManager, LoggerManager>();
 
 
-        public static void ConfigureSqlContext(this IServiceCollection services,
-        IConfiguration configuration) =>
+        public static void ConfigureSqlContext(this IServiceCollection services,IConfiguration configuration) =>
             services.AddDbContext<RepositoryContext>(opts =>
             opts.UseSqlServer(configuration.GetConnectionString("sqlConnection"),
                 b => b.MigrationsAssembly("WebAPI")));
+
 
         public static void ConfigureRepositoryManager(this IServiceCollection services) =>
             services.AddScoped<IRepositoryManager, RepositoryManager>();

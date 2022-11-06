@@ -3,16 +3,17 @@ using Contracts;
 using Contracts.IRepository;
 using Entities.DataTransferObjects;
 using Entities.Models;
+using Entities.RequestFeatures;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Repository;
 using System;
+using WebAPI.Utils.ActionFilters;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
 
 namespace WebAPI.Controllers
 {
     [Route("api/fridges")]
-    //[ApiController]
     public class FridgeController : ControllerBase
     {
         private IRepositoryManager _repositoryManager;
@@ -27,25 +28,25 @@ namespace WebAPI.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetFridges()
+        public async Task<IActionResult> GetFridges()
         {
-            var fridges = _repositoryManager.Fridge.GetAllFridges(false);
+            var fridges = await _repositoryManager.Fridge.GetAllFridgesAsync(false);
             var fridgesDto = _mapper.Map<IEnumerable<FridgeDto>>(fridges);
             return Ok(fridgesDto);
         }
 
 
 
-        [HttpGet("{id}/products", Name = "CreateProduct")]
-        public IActionResult GetProductsByFridgeId(Guid fridgeId)
+        [HttpGet("{id}/products", Name = "GetProductByFridgeId")]
+        public async Task<IActionResult> GetProductsByFridgeId(Guid id, RequestParameters pagingPrameters)
         {
-            var fridge = _repositoryManager.Fridge.GetFridge(fridgeId, trackChanges: false);
+            var fridge = await _repositoryManager.Fridge.GetFridgeAsync(id, trackChanges: false);
             if (fridge == null)
             {
-                _logger.LogInfo($"Fridge with id: {fridgeId} doesn't exist in the database.");
+                _logger.LogInfo($"Fridge with id: {id} doesn't exist in the database.");
                 return NotFound();
             }
-            var products = _repositoryManager.FridgeProducts.GetFridgeProducts(fridgeId);
+            var products = await _repositoryManager.FridgeProducts.GetFridgeProductsAsync(id, pagingPrameters);
             var productsDto = _mapper.Map<IEnumerable<ProductDto>>(products);
             return Ok(productsDto);
         }
@@ -53,15 +54,15 @@ namespace WebAPI.Controllers
 
 
         [HttpGet("{id}", Name = "FridgeById")]
-        public IActionResult GetFridge(Guid id)
+        public async Task<IActionResult> GetFridge(Guid id)
         {
-            var fridge = _repositoryManager.Fridge.GetFridge(id, false);
+            var fridge = await _repositoryManager.Fridge.GetFridgeAsync(id, false);
             if (fridge == null)
             {
                 _logger.LogInfo($"Fridge with id: {id} doesn't exist in the database.");
                 return NotFound();
             }
-            var fridgeModel = _repositoryManager.FridgeModel.GetFridgeModel(fridge.FridgeModelId, false);
+            var fridgeModel = await _repositoryManager.FridgeModel.GetFridgeModelAsync(fridge.FridgeModelId, false);
             fridge.FridgeModel = fridgeModel;
             var fridgeDto = _mapper.Map<FridgeDto>(fridge);
             return Ok(fridgeDto);
@@ -69,34 +70,21 @@ namespace WebAPI.Controllers
 
 
         [HttpPost]
-        public IActionResult CreateFridge([FromBody] FridgeCreationDto fridge)
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
+        public async Task<IActionResult> CreateFridge([FromBody] FridgeCreationDto fridge)
         {
-            if (fridge == null)
-            {
-                _logger.LogError("FridgeCreationDto object sent from client is null.");
-                return BadRequest("FridgeCreationDto object is null.");
-            }
-
-            if (!ModelState.IsValid)
-            {
-                _logger.LogError("Invalid model state for the FridgeCreationDto object");
-                return UnprocessableEntity(ModelState);
-            }
-
             var fridgeEntity = _mapper.Map<Fridge>(fridge);
-
             _repositoryManager.Fridge.CreateFridge(fridgeEntity);
-            _repositoryManager.Save();
-
+            await _repositoryManager.SaveAsync();
             var toReturn = _mapper.Map<FridgeDto>(fridgeEntity);
             return CreatedAtRoute("FridgeById", new {id = toReturn.Id}, toReturn);
         }
 
 
         [HttpDelete("{id}")]
-        public IActionResult DeleteFridge(Guid id)
+        public async Task<IActionResult> DeleteFridge(Guid id)
         {
-            var fridge = _repositoryManager.Fridge.GetFridge(id, false);
+            var fridge = await _repositoryManager.Fridge.GetFridgeAsync(id, false);
             if (fridge == null)
             {
                 _logger.LogInfo($"Fridge with id: {id} doesn't exist in the database.");
@@ -104,36 +92,25 @@ namespace WebAPI.Controllers
             }
             _repositoryManager.FridgeProducts.DeleteFridgeProducts(id);
             _repositoryManager.Fridge.DeleteFridge(fridge);
-            _repositoryManager.Save();
+            await _repositoryManager.SaveAsync();
 
             return NoContent();
         }
 
 
         [HttpPut("{id}")]
-        public IActionResult UpdateFridge(Guid id, [FromBody] FridgeCreationDto fridge)
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
+        public async Task<IActionResult> UpdateFridge(Guid id, [FromBody] FridgeCreationDto fridge)
         {
-            if (fridge == null)
-            {
-                _logger.LogError("FridgeCreationDto object sent from client is null.");
-                return BadRequest("FridgeCreationDto object is null.");
-            }
-            
-            var fridgeEntity = _repositoryManager.Fridge.GetFridge(id, true);
+            var fridgeEntity = _repositoryManager.Fridge.GetFridgeAsync(id, true);
             if (fridgeEntity == null)
             {
                 _logger.LogInfo($"Fridge with id: {id} doesn't exist in the database.");
                 return NotFound();
             }
 
-            if (!ModelState.IsValid)
-            {
-                _logger.LogError("Invalid model state for the FridgeCreationDto object");
-                return UnprocessableEntity(ModelState);
-            }
-
-            _mapper.Map(fridge, fridgeEntity);
-            _repositoryManager.Save();
+            await _mapper.Map(fridge, fridgeEntity);
+            await _repositoryManager.SaveAsync();
             return NoContent();
         }
         

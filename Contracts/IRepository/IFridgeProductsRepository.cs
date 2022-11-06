@@ -1,4 +1,5 @@
 ﻿using Entities.Models;
+using Entities.RequestFeatures;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,9 +10,13 @@ namespace Contracts.IRepository
 {
     public interface IFridgeProductsRepository
     {
-        IEnumerable<Product> GetFridgeProducts(Guid fridgeId);
+        Task<IEnumerable<Product>> GetFridgeProductsAsync(Guid fridgeId, RequestParameters pagingPrameters);
         void CreateFridgeProduct(Guid productId, Guid fridgeId);
 
         void DeleteFridgeProducts(Guid fridgeId);
+
+        void DeleteProductFromFridge(Guid productId, Guid fridgeId);
+
+        void DeleteProduct(Guid productId);
     }
 }

@@ -1,6 +1,8 @@
 ﻿using Contracts.IRepository;
 using Entities;
 using Entities.Models;
+using Entities.RequestFeatures;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,9 +37,26 @@ namespace Repository.Repositories
             }
         }
 
-        public IEnumerable<Product> GetFridgeProducts(Guid fridgeId)
+        public void DeleteProduct(Guid productId)
         {
-            var links = Context.FridgeProducts.Where(b => b.FridgeId == fridgeId).Join(Context.Products,
+            var links = Context.FridgeProducts.Where(b => b.ProductId == productId).ToList();
+            foreach (var link in links)
+            {
+                Delete(link);
+            }
+
+        }
+
+        public void DeleteProductFromFridge(Guid productId, Guid fridgeId)
+        {
+            var link = Context.FridgeProducts.Where(p => p.ProductId == productId | p.FridgeId == fridgeId).FirstOrDefault();
+            if (link != null)
+                Delete(link);
+        }
+
+        public async Task<IEnumerable<Product>> GetFridgeProductsAsync(Guid fridgeId, RequestParameters pagingPrameters)
+        {
+            var links = await Context.FridgeProducts.Where(b => b.FridgeId == fridgeId).Join(Context.Products,
                 c => c.ProductId,
                 p => p.Id,
                 (c,p) => new Product
@@ -46,7 +65,10 @@ namespace Repository.Repositories
                     Name = p.Name,
                     Description = p.Description,
                     DefaultQuantity = p.DefaultQuantity
-                });
+                })
+                .Skip((pagingPrameters.PageNumber - 1) * pagingPrameters.PageSize)
+                .Take(pagingPrameters.PageSize)
+                .ToListAsync();
 
             return links;
         }

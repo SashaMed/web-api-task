@@ -13,6 +13,8 @@ namespace Contracts.IRepository
         IProductsRepository Products { get; }
         IFridgeModelRepository FridgeModel { get; }
 
-        void Save();
+        Task<int> CallStoredProcedure();
+
+        Task SaveAsync();
     }
 }

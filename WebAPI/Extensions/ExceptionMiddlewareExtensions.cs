@@ -22,8 +22,9 @@ namespace WebAPI.Extensions
                         await context.Response.WriteAsync(new ErrorDetails()
                         {
                             StatusCode = context.Response.StatusCode,
-                            Message = "Internal Server Error. \n" + contextFeature.Error.Message
-                        }.ToString());
+                            Message = "Internal Server Error.",
+                            ExceptionMessage = contextFeature.Error.Message
+                        }.ToString()); ; 
                     }
                 });
             });

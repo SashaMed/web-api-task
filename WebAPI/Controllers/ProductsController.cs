@@ -6,11 +6,12 @@ using Microsoft.AspNetCore.Mvc;
 using Entities.DataTransferObjects;
 using System.ComponentModel.Design;
 using Entities.Models;
+using WebAPI.Utils.ActionFilters;
+using Entities.RequestFeatures;
 
 namespace WebAPI.Controllers
 {
     [Route("api/products")]
-    //[ApiController]
     public class ProductsController : ControllerBase
     {
         private IRepositoryManager _repositoryManager;
@@ -25,18 +26,18 @@ namespace WebAPI.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetProducts()
+        public async Task<IActionResult> GetProducts(RequestParameters pagingPrameters)
         {
-            var products = _repositoryManager.Products.GetAllProducts(false);
+            var products = await _repositoryManager.Products.GetAllProductsAsync(pagingPrameters, false);
             var productsDto = _mapper.Map<IEnumerable<ProductDto>>(products);
             return Ok(productsDto);
         }
 
 
         [HttpGet("{id}")]
-        public IActionResult GetSingleProductByFridgeId( Guid productId)
+        public async Task<IActionResult> GetSingleProductByFridgeId( Guid productId)
         {
-            var product = _repositoryManager.Products.GetProduct(productId, trackChanges: false);
+            var product = await _repositoryManager.Products.GetProductAsync(productId, trackChanges: false);
             if (product == null)
             {
                 _logger.LogInfo($"Product with id: {productId} doesn't exist in the database.");
@@ -48,42 +49,30 @@ namespace WebAPI.Controllers
 
 
         [HttpPost("{fridgeId}")]
-        public IActionResult CreateProduct(Guid fridgeId, [FromBody] ProductCreationDto product)
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
+        public async Task<IActionResult> CreateProduct(Guid fridgeId, [FromBody] ProductCreationDto product)
         {
-            if (product == null)
-            {
-                _logger.LogError("ProductCreationDto object sent from client is null.");
-                return BadRequest("ProductCreationDto object is null.");
-            }
-
-            var fridge = _repositoryManager.Fridge.GetFridge(fridgeId, false);
+            var fridge = await _repositoryManager.Fridge.GetFridgeAsync(fridgeId, false);
             if (fridge == null)
             {
                 _logger.LogInfo($"Fridge with id: {fridgeId} doesn't exist in the database.");
                 return NotFound();
             }
 
-            if (!ModelState.IsValid)
-            {
-                _logger.LogError("Invalid model state for the ProductCreationDto object");
-                return UnprocessableEntity(ModelState);
-            }
-
             var productEntity = _mapper.Map<Product>(product);
             _repositoryManager.Products.CreateProduct(productEntity);
             _repositoryManager.FridgeProducts.CreateFridgeProduct(productEntity.Id, fridgeId);
-            _repositoryManager.Save();
+            await _repositoryManager.SaveAsync();
 
             var toReturn = _mapper.Map<ProductDto>(productEntity);
-
-            return CreatedAtRoute("CreateProduct", new { fridgeId, id = toReturn.Id }, toReturn);
+            return CreatedAtRoute("GetProductByFridgeId", new { fridgeId, id = toReturn.Id }, toReturn);
         }
 
 
         [HttpDelete("{id}")]
-        public IActionResult DeleteProduct(Guid id)
+        public async Task<IActionResult> DeleteProduct(Guid id)
         {
-            var product = _repositoryManager.Products.GetProduct(id, false);
+            var product = await _repositoryManager.Products.GetProductAsync(id, false);
             if (product == null)
             {
                 _logger.LogInfo($"Product with id: {id} doesn't exist in the database.");
@@ -91,36 +80,33 @@ namespace WebAPI.Controllers
             }
 
             _repositoryManager.Products.DeleteProduct(product);
-            _repositoryManager.Save();
+            _repositoryManager.FridgeProducts.DeleteProduct(id);
+            await _repositoryManager.SaveAsync();
             return NoContent();
         }
 
 
         [HttpPut("{id}")]
-        public IActionResult UpdateProduct(Guid id, [FromBody] ProductCreationDto product)
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
+        public async Task<IActionResult> UpdateProduct(Guid id, [FromBody] ProductCreationDto product)
         {
-            if (product == null)
-            {
-                _logger.LogError("ProductCreationDto object sent from client is null.");
-                return BadRequest("ProductCreationDto object is null.");
-            }
-
-            var productEntity = _repositoryManager.Products.GetProduct(id, true);
+            var productEntity = await _repositoryManager.Products.GetProductAsync(id, true);
             if (productEntity == null)
             {
                 _logger.LogInfo($"Product with id: {id} doesn't exist in the database.");
                 return NotFound();
             }
 
-            if (!ModelState.IsValid)
-            {
-                _logger.LogError("Invalid model state for the ProductCreationDto object");
-                return UnprocessableEntity(ModelState);
-            }
-
             _mapper.Map(product, productEntity);
-            _repositoryManager.Save();
+            await _repositoryManager.SaveAsync();
             return NoContent();
+        }
+
+        [HttpGet("procedure")]
+        public async Task<IActionResult> ExecStoredProcedure()
+        {
+            var quantity = await _repositoryManager.CallStoredProcedure();
+            return Ok($"{quantity} rows affected during execution");
         }
     }
 }

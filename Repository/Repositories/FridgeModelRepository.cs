@@ -1,6 +1,7 @@
 ﻿using Contracts.IRepository;
 using Entities;
 using Entities.Models;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,9 +16,14 @@ namespace Repository.Repositories
         {
         }
 
-        public FridgeModel GetFridgeModel(Guid id, bool trackChanges)
+        public async Task<IEnumerable<FridgeModel>> GetAllFridgeModelsAsync(bool trackChanges)
         {
-            return FindByCondition(b => b.Id == id, trackChanges).SingleOrDefault();
+            return await FindAll(trackChanges).OrderBy(c => c.Name).ToListAsync();
+        }
+
+        public async Task<FridgeModel> GetFridgeModelAsync(Guid id, bool trackChanges)
+        {
+            return await FindByCondition(b => b.Id == id, trackChanges).SingleOrDefaultAsync();
         }
     }
 }

@@ -9,6 +9,8 @@ namespace Contracts.IRepository
 {
     public interface IFridgeModelRepository
     {
-        FridgeModel GetFridgeModel(Guid id, bool trackChanges);
+        Task<FridgeModel> GetFridgeModelAsync(Guid id, bool trackChanges);
+
+        Task<IEnumerable<FridgeModel>> GetAllFridgeModelsAsync(bool trackChanges);
     }
 }

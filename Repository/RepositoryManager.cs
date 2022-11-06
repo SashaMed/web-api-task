@@ -1,8 +1,11 @@
 ﻿using Contracts.IRepository;
 using Entities;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using Repository.Repositories;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -66,6 +69,15 @@ namespace Repository
             _repositoryContext = repositoryContext;
         }
 
-        public void Save() => _repositoryContext.SaveChanges();
+        public async Task SaveAsync() => await _repositoryContext.SaveChangesAsync();
+
+        public async Task<int> CallStoredProcedure()
+        {
+            int c = 0;
+            var quantityParam = new SqlParameter("@affected_rows",c) { Direction = ParameterDirection.Output };
+            await _repositoryContext.Database.ExecuteSqlRawAsync("EXEC update_quatity_to_default @affected_rows OUTPUT", quantityParam);
+            var quantity = Convert.ToInt32(quantityParam.Value);
+            return quantity;
+        }
     }
 }

@@ -7,6 +7,8 @@ using NLog;
 using Microsoft.EntityFrameworkCore.Design;
 using Contracts;
 using Microsoft.AspNetCore.Mvc;
+using WebAPI.Utils.ActionFilters;
+using Entities;
 
 namespace WebAPI
 {
@@ -52,6 +54,7 @@ namespace WebAPI
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddScoped<ValidationFilterAttribute>();
             services.Configure<ApiBehaviorOptions>(options =>
             {
                 options.SuppressModelStateInvalidFilter = true;

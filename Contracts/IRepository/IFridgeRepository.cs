@@ -9,8 +9,8 @@ namespace Contracts.IRepository
 {
     public interface IFridgeRepository
     {
-        IEnumerable<Fridge> GetAllFridges(bool trackChanges);
-        Fridge GetFridge(Guid id, bool trackChanges);
+        Task<IEnumerable<Fridge>> GetAllFridgesAsync(bool trackChanges);
+        Task<Fridge> GetFridgeAsync(Guid id, bool trackChanges);
         
         void CreateFridge(Fridge fridge);
 

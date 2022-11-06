@@ -1,6 +1,8 @@
 ﻿using Contracts.IRepository;
 using Entities;
 using Entities.Models;
+using Entities.RequestFeatures;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,14 +28,18 @@ namespace Repository.Repositories
             Delete(product);
         }
 
-        public IEnumerable<Product> GetAllProducts(bool trackChanges)
+        public async Task<IEnumerable<Product>> GetAllProductsAsync(RequestParameters parameters, bool trackChanges)
         {
-            return FindAll(trackChanges).OrderBy(c => c.Name).ToList();
+            return await FindAll(trackChanges)
+                .OrderBy(c => c.Name)
+                .Skip((parameters.PageNumber - 1) * parameters.PageSize)
+                .Take(parameters.PageSize)
+                .ToListAsync();
         }
 
-        public Product GetProduct(Guid productId, bool trackChanges)
+        public async Task<Product> GetProductAsync(Guid productId, bool trackChanges)
         {
-            return FindByCondition(b => b.Id == productId, trackChanges).SingleOrDefault();
+            return await FindByCondition(b => b.Id == productId, trackChanges).SingleOrDefaultAsync();
         }
     }
 }
