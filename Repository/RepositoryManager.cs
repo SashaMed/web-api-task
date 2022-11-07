@@ -75,7 +75,8 @@ namespace Repository
         {
             int c = 0;
             var quantityParam = new SqlParameter("@affected_rows",c) { Direction = ParameterDirection.Output };
-            await _repositoryContext.Database.ExecuteSqlRawAsync("EXEC update_quatity_to_default @affected_rows OUTPUT", quantityParam);
+            await _repositoryContext.Database
+                .ExecuteSqlRawAsync("EXEC update_quatity_to_default @affected_rows OUTPUT", quantityParam);
             var quantity = Convert.ToInt32(quantityParam.Value);
             return quantity;
         }

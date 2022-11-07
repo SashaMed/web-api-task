@@ -102,14 +102,14 @@ namespace WebAPI.Controllers
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> UpdateFridge(Guid id, [FromBody] FridgeCreationDto fridge)
         {
-            var fridgeEntity = _repositoryManager.Fridge.GetFridgeAsync(id, true);
+            var fridgeEntity = await _repositoryManager.Fridge.GetFridgeAsync(id, true);
             if (fridgeEntity == null)
             {
                 _logger.LogInfo($"Fridge with id: {id} doesn't exist in the database.");
                 return NotFound();
             }
 
-            await _mapper.Map(fridge, fridgeEntity);
+            _mapper.Map(fridge, fridgeEntity);
             await _repositoryManager.SaveAsync();
             return NoContent();
         }
