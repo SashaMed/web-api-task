@@ -3,6 +3,7 @@ using Contracts;
 using Contracts.IRepository;
 using Entities.DataTransferObjects;
 using Entities.Models;
+using Entities.RequestFeatures;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
@@ -29,48 +30,12 @@ namespace WebAPI.Tests.Tests
             _mapper = mappingConfig.CreateMapper();
         }
 
-        public IEnumerable<Fridge> Fridges
-        {
-            get
-            {
-                IEnumerable<Fridge> fridges = new List<Fridge>()
-                {
-                    new Fridge()
-                    {
-                        Id = new Guid("10061240-8b43-47a7-9efe-d2c176cc8bb8"),
-                        Name = "123",
-                        OwnerName = "ne sasha",
-                        FridgeModelId = new Guid("c9d4c053-49b6-410c-bc78-2d54a9991870")
-                    },
-                    new Fridge()
-                    {
-                        Id = new Guid("0b57d31d-3a23-4c83-9483-08dac0156203"),
-                        Name = "Atlant",
-                        OwnerName = "sasha",
-                        FridgeModelId = new Guid("c9d4c053-49b6-410c-bc78-2d54a9991870")
-                    }
-                };
-                return fridges;
-            }
-        }
 
-        public FridgeModel FridgeModelVal
-        {
-            get
-            {
-                return new FridgeModel
-                {
-                    Id = new Guid("c9d4c053-49b6-410c-bc78-2d54a9991870"),
-                    Name = "atlant",
-                    Year = 1999
-                };
-            }
-        }
 
         [Fact]
         public async Task GetAllFridges_ShouldReturnOk_WithData()
         {
-            IEnumerable<Fridge> fridges = Fridges;
+            IEnumerable<Fridge> fridges = FakeData.Fridges;
 
             var fakeRepo = new FakeRepository();
             fakeRepo.Mock.Setup(s => s.Fridge.GetAllFridgesAsync(false))
@@ -89,7 +54,7 @@ namespace WebAPI.Tests.Tests
             var responseFridges = okResult.Value as IEnumerable<FridgeDto>;
 
             Assert.NotNull(responseFridges);
-            Assert.Equal(responseFridges.Count(), Fridges.Count());
+            Assert.Equal(responseFridges.Count(), fridges.Count());
         }
 
         [Fact]
@@ -121,13 +86,13 @@ namespace WebAPI.Tests.Tests
         public async Task GetOneFridge_ShouldReturnOk_WithData()
         {
             var guid = new Guid("10061240-8b43-47a7-9efe-d2c176cc8bb8");
-            var fridge = Fridges.Where(c => c.Id == guid).FirstOrDefault();
+            var fridge = FakeData.Fridges.Where(c => c.Id == guid).FirstOrDefault();
 
             var fakeRepo = new FakeRepository();
             fakeRepo.Mock.Setup(s => s.Fridge.GetFridgeAsync(guid, false))
                 .Returns( Task.FromResult(fridge));
-            fakeRepo.Mock.Setup(s => s.FridgeModel.GetFridgeModelAsync(FridgeModelVal.Id, false))
-                .Returns(Task.FromResult(FridgeModelVal));
+            fakeRepo.Mock.Setup(s => s.FridgeModel.GetFridgeModelAsync(FakeData.FridgeModelVal.Id, false))
+                .Returns(Task.FromResult(FakeData.FridgeModelVal));
 
             var controller = new FridgeController(fakeRepo.Repository, null, _mapper);
             var response = await controller.GetFridge(guid);
@@ -149,7 +114,7 @@ namespace WebAPI.Tests.Tests
         public async Task GetOneFridge_ShouldReturnNotFound_NoData()
         {
             var guid = Guid.NewGuid();
-            var fridge = Fridges.Where(c => c.Id == guid).FirstOrDefault();
+            var fridge = FakeData.Fridges.Where(c => c.Id == guid).FirstOrDefault();
 
             var fakeRepo = new FakeRepository();
             fakeRepo.Mock.Setup(s => s.Fridge.GetFridgeAsync(guid, false))
@@ -200,7 +165,7 @@ namespace WebAPI.Tests.Tests
         public async Task UpdateFridge_ShouldReturnNoContent()
         {
             var guid = new Guid("10061240-8b43-47a7-9efe-d2c176cc8bb8");
-            var fridge = Fridges.Where(c => c.Id == guid).FirstOrDefault();
+            var fridge = FakeData.Fridges.Where(c => c.Id == guid).FirstOrDefault();
             var fakeRepo = new FakeRepository();
             fakeRepo.Mock.Setup(s => s.Fridge.GetFridgeAsync(guid, true)).Returns(Task.FromResult(fridge));
 
@@ -225,7 +190,7 @@ namespace WebAPI.Tests.Tests
         public async Task UpdateFridge_ShouldReturnNotFound()
         {
             var guid = Guid.NewGuid();
-            var fridge = Fridges.Where(c => c.Id == guid).FirstOrDefault();
+            var fridge = FakeData.Fridges.Where(c => c.Id == guid).FirstOrDefault();
 
             var fakeRepo = new FakeRepository();
             fakeRepo.Mock.Setup(s => s.Fridge.GetFridgeAsync(guid, false))
@@ -243,5 +208,65 @@ namespace WebAPI.Tests.Tests
 
             Assert.Equal(404, notFoundResult.StatusCode);
         }
+
+        [Fact]
+        public async Task GetProductsByFridgeId_ShouldReturnOk_WithData()
+        {
+            var guid = new Guid("10061240-8b43-47a7-9efe-d2c176cc8bb8");
+            var fridge = FakeData.Fridges.First(c => c.Id == guid);
+            var requestParams = new RequestParameters
+            {
+                PageNumber = 1,
+                PageSize = 10
+            };
+            List<Product> products = (List<Product>)FakeData.Products;
+            FakeRepository fakeRepo = new FakeRepository();
+
+            fakeRepo.Mock.Setup(s => s.Fridge.GetFridgeAsync(guid, false))
+                .Returns(Task.FromResult(fridge));
+            fakeRepo.Mock.Setup(s => s.FridgeProducts.GetFridgeProductsAsync(guid, requestParams))
+                .Returns(Task.FromResult(FakeData.Products.Where(b => b.DefaultQuantity == 10)));
+
+
+            var controller = new FridgeController(fakeRepo.Repository, null, _mapper);
+
+            var response = await controller.GetProductsByFridgeId(guid, requestParams);
+
+            Assert.NotNull(response);
+            Assert.IsType<OkObjectResult>(response);
+
+            var okResult = response as OkObjectResult;
+
+            Assert.Equal(200, okResult.StatusCode);
+
+            var responseProducts = okResult.Value as IEnumerable<ProductDto>;
+
+            Assert.NotNull(responseProducts);
+            Assert.Equal(responseProducts.Count(), 2);
+        }
+
+        [Fact]
+        public async Task DeleteFridge_ShouldReturnNoContent()
+        {
+            var guid = new Guid("10061240-8b43-47a7-9efe-d2c176cc8bb8");
+            var fridge = FakeData.Fridges.Where(c => c.Id == guid).FirstOrDefault();
+            var fakeRepo = new FakeRepository();
+            fakeRepo.Mock.Setup(s => s.Fridge.GetFridgeAsync(guid, false)).Returns(Task.FromResult(fridge));
+            fakeRepo.Mock.Setup(s => s.Fridge.DeleteFridge(fridge));
+            fakeRepo.Mock.Setup(s => s.FridgeProducts.DeleteFridgeProducts(guid));
+
+            var fakeLogger = new FakeLogger();
+            var request = new FridgeCreationDto();
+            var controller = new FridgeController(fakeRepo.Repository, fakeLogger.Logger, _mapper);
+            var response = await controller.DeleteFridge(guid);
+
+            Assert.NotNull(response);
+            Assert.IsType<NoContentResult>(response);
+
+            var notFoundResult = response as NoContentResult;
+
+            Assert.Equal(204, notFoundResult.StatusCode);
+        }
+
     }
 }

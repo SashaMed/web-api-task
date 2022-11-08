@@ -35,12 +35,12 @@ namespace WebAPI.Controllers
 
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetSingleProductByFridgeId( Guid productId)
+        public async Task<IActionResult> GetSingleProductById( Guid id)
         {
-            var product = await _repositoryManager.Products.GetProductAsync(productId, trackChanges: false);
+            var product = await _repositoryManager.Products.GetProductAsync(id, trackChanges: false);
             if (product == null)
             {
-                _logger.LogInfo($"Product with id: {productId} doesn't exist in the database.");
+                _logger.LogInfo($"Product with id: {id} doesn't exist in the database.");
                 return NotFound();
             }
             var productsDto = _mapper.Map<ProductDto>(product);
@@ -102,11 +102,6 @@ namespace WebAPI.Controllers
             return NoContent();
         }
 
-        [HttpGet("procedure")]
-        public async Task<IActionResult> ExecStoredProcedure()
-        {
-            var quantity = await _repositoryManager.CallStoredProcedure();
-            return Ok($"{quantity} rows affected during execution");
-        }
+
     }
 }
