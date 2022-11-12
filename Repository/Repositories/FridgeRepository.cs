@@ -1,5 +1,6 @@
 ﻿using Contracts.IRepository;
 using Entities;
+using Entities.DataTransferObjects;
 using Entities.Models;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -33,6 +34,29 @@ namespace Repository.Repositories
         public async Task<Fridge> GetFridgeAsync(Guid id, bool trackChanges)
         {
             return await FindByCondition(b => b.Id == id, trackChanges).SingleOrDefaultAsync();
+        }
+
+
+        public async Task<IEnumerable<Fridge>> GetAllFridgesWithModels(bool trackChanges)
+        {
+            var fridges = await Context.Fridges.Join(Context.FridgeModels,
+                b => b.FridgeModelId,
+                c => c.Id,
+                (b, c) => new Fridge
+                {
+                    Id = b.Id,
+                    Name = b.Name,
+                    OwnerName = b.OwnerName,
+                    FridgeModelId = c.Id,
+                    FridgeModel = new FridgeModel
+                    {
+                        Id = c.Id,
+                        Name = c.Name,
+                        Year = c.Year
+                    }
+                }).ToListAsync();
+
+            return fridges;
         }
     }
 }

@@ -30,7 +30,7 @@ namespace WebAPI.Controllers
         [HttpGet]
         public async Task<IActionResult> GetFridges()
         {
-            var fridges = await _repositoryManager.Fridge.GetAllFridgesAsync(false);
+            var fridges = await _repositoryManager.Fridge.GetAllFridgesWithModels(false);
             var fridgesDto = _mapper.Map<IEnumerable<FridgeDto>>(fridges);
             return Ok(fridgesDto);
         }
@@ -65,8 +65,13 @@ namespace WebAPI.Controllers
             var fridgeModel = await _repositoryManager.FridgeModel.GetFridgeModelAsync(fridge.FridgeModelId, false);
             fridge.FridgeModel = fridgeModel;
             var fridgeDto = _mapper.Map<FridgeDto>(fridge);
+            fridgeDto.Products = await _repositoryManager.FridgeProducts.GetFridgeProductsAsync(id ,
+                new RequestParameters { PageNumber = 1,
+                                        PageSize = 10 
+                });
             return Ok(fridgeDto);
         }
+
 
 
         [HttpPost]
@@ -113,6 +118,12 @@ namespace WebAPI.Controllers
             await _repositoryManager.SaveAsync();
             return NoContent();
         }
-        
+
+        [HttpGet("models")]
+        public async Task<IActionResult> GetFridgeModels()
+        {
+            var models = await _repositoryManager.FridgeModel.GetAllFridgeModelsAsync(false);
+            return Ok(models);
+        }
     }
 }

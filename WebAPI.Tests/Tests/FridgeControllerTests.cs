@@ -38,7 +38,7 @@ namespace WebAPI.Tests.Tests
             IEnumerable<Fridge> fridges = FakeData.Fridges;
 
             var fakeRepo = new FakeRepository();
-            fakeRepo.Mock.Setup(s => s.Fridge.GetAllFridgesAsync(false))
+            fakeRepo.Mock.Setup(s => s.Fridge.GetAllFridgesWithModels(false))
                 .Returns(Task.FromResult(fridges));
 
             var controller = new FridgeController(fakeRepo.Repository, null, _mapper);
@@ -54,7 +54,7 @@ namespace WebAPI.Tests.Tests
             var responseFridges = okResult.Value as IEnumerable<FridgeDto>;
 
             Assert.NotNull(responseFridges);
-            Assert.Equal(responseFridges.Count(), fridges.Count());
+            Assert.Equal(fridges.Count(), responseFridges.Count());
         }
 
         [Fact]

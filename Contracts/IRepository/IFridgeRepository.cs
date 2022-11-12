@@ -15,5 +15,7 @@ namespace Contracts.IRepository
         void CreateFridge(Fridge fridge);
 
         void DeleteFridge(Fridge fridge);
+
+        Task<IEnumerable<Fridge>> GetAllFridgesWithModels(bool trackChanges);
     }
 }

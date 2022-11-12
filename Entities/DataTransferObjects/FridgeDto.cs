@@ -20,5 +20,7 @@ namespace Entities.DataTransferObjects
         public Guid FridgeModelId { get; set; }
 
         public FridgeModel FridgeModel { get; set; }    
+
+        public IEnumerable<Product> Products { get; set; }
     }
 }
