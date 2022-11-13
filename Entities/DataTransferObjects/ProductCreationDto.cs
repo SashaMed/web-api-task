@@ -18,5 +18,7 @@ namespace Entities.DataTransferObjects
         [Required(ErrorMessage = "Default Quantity name is a required field.")]
         [Range(0, int.MaxValue, ErrorMessage = "DefaultQuantity is required and it can't be lower than 0")]
         public int DefaultQuantity { get; set; }
+
+        public int Quantity { get; set; }
     }
 }

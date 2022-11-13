@@ -8,6 +8,7 @@ using System.ComponentModel.Design;
 using Entities.Models;
 using WebAPI.Utils.ActionFilters;
 using Entities.RequestFeatures;
+using Entities.Responces;
 
 namespace WebAPI.Controllers
 {
@@ -30,7 +31,13 @@ namespace WebAPI.Controllers
         {
             var products = await _repositoryManager.Products.GetAllProductsAsync(pagingPrameters, false);
             var productsDto = _mapper.Map<IEnumerable<ProductDto>>(products);
-            return Ok(productsDto);
+            var productCount = await _repositoryManager.Products.GetProductCountAsync();
+            var responce = new GetAllProductsResponce
+            {
+                Products = productsDto,
+                ProductsCount = productCount
+            };
+            return Ok(responce);
         }
 
 
@@ -61,7 +68,7 @@ namespace WebAPI.Controllers
 
             var productEntity = _mapper.Map<Product>(product);
             _repositoryManager.Products.CreateProduct(productEntity);
-            _repositoryManager.FridgeProducts.CreateFridgeProduct(productEntity.Id, fridgeId);
+            _repositoryManager.FridgeProducts.CreateFridgeProduct(productEntity.Id, fridgeId, product.Quantity);
             await _repositoryManager.SaveAsync();
 
             var toReturn = _mapper.Map<ProductDto>(productEntity);
@@ -101,6 +108,9 @@ namespace WebAPI.Controllers
             await _repositoryManager.SaveAsync();
             return NoContent();
         }
+
+
+
 
 
     }

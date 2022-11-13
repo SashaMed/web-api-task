@@ -1,4 +1,5 @@
-﻿using Entities.Models;
+﻿using Entities.DataTransferObjects;
+using Entities.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -86,6 +87,47 @@ namespace WebAPI.Tests.Mocks
                 return products;
             }
         }
+
+        public static IEnumerable<ProductDto> ProductsDto
+        {
+            get
+            {
+                IEnumerable<ProductDto> products = new List<ProductDto>()
+                {
+                    new ProductDto()
+                    {
+                        Id = new Guid("b5b47b15-709e-442a-bcf1-320e8543ff2b"),
+                        Name = "milk",
+                        Description = "ne sasha",
+                        DefaultQuantity = 1
+                    },
+                    new ProductDto()
+                    {
+                        Id = new Guid("a6ed0776-5f3c-48ce-a49f-03142c2f1602"),
+                        Name = "potato",
+                        Description = "10 kg",
+                        DefaultQuantity = 100
+                    },
+                    new ProductDto()
+                    {
+                        Id = new Guid("0d071192-0ce9-4063-9829-a90cd76dbb2b"),
+                        Name = "salo",
+                        Description = "ukraine salo",
+                        DefaultQuantity = 10
+                    },
+                    new ProductDto()
+                    {
+                        Id = new Guid("b2b56b4f-d066-45a6-a7e8-fa34e6cf1772"),
+                        Name = "eggs",
+                        Description = "c1",
+                        DefaultQuantity = 10
+                    }
+                };
+
+                return products;
+            }
+        }
+
 
         public static IEnumerable<FridgeProducts> FridgeProductsVals
         {

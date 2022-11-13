@@ -21,6 +21,6 @@ namespace Entities.DataTransferObjects
 
         public FridgeModel FridgeModel { get; set; }    
 
-        public IEnumerable<Product> Products { get; set; }
+        public IEnumerable<ProductDto> Products { get; set; }
     }
 }

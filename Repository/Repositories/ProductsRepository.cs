@@ -41,5 +41,10 @@ namespace Repository.Repositories
         {
             return await FindByCondition(b => b.Id == productId, trackChanges).SingleOrDefaultAsync();
         }
+
+        public async Task<int> GetProductCountAsync()
+        {
+            return await Context.Products.CountAsync();
+        }
     }
 }

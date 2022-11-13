@@ -1,5 +1,6 @@
 ﻿using Contracts.IRepository;
 using Entities;
+using Entities.DataTransferObjects;
 using Entities.Models;
 using Entities.RequestFeatures;
 using Microsoft.EntityFrameworkCore;
@@ -17,13 +18,14 @@ namespace Repository.Repositories
         {
         }
 
-        public void CreateFridgeProduct(Guid productId, Guid fridgeId)
+        public void CreateFridgeProduct(Guid productId, Guid fridgeId, int quantity)
         {
             var link = new FridgeProducts
             {
                 Id = Guid.NewGuid(),
                 FridgeId = fridgeId,
-                ProductId = productId
+                ProductId = productId,
+                Quantity = quantity
             };
             Create(link);
         }
@@ -49,28 +51,35 @@ namespace Repository.Repositories
 
         public void DeleteProductFromFridge(Guid productId, Guid fridgeId)
         {
-            var link = Context.FridgeProducts.Where(p => p.ProductId == productId | p.FridgeId == fridgeId).FirstOrDefault();
+            var link = Context.FridgeProducts.Where(p => p.ProductId == productId & p.FridgeId == fridgeId).FirstOrDefault();
             if (link != null)
                 Delete(link);
         }
 
-        public async Task<IEnumerable<Product>> GetFridgeProductsAsync(Guid fridgeId, RequestParameters pagingPrameters)
+        public async Task<IEnumerable<ProductDto>> GetFridgeProductsAsync(Guid fridgeId, RequestParameters pagingPrameters)
         {
             var links = await Context.FridgeProducts.Where(b => b.FridgeId == fridgeId).Join(Context.Products,
                 c => c.ProductId,
                 p => p.Id,
-                (c,p) => new Product
+                (c,p) => new ProductDto
                 {
                     Id = p.Id,
                     Name = p.Name,
                     Description = p.Description,
-                    DefaultQuantity = p.DefaultQuantity
+                    DefaultQuantity = p.DefaultQuantity,
+                    Quantity = c.Quantity
+                    
                 })
                 .Skip((pagingPrameters.PageNumber - 1) * pagingPrameters.PageSize)
                 .Take(pagingPrameters.PageSize)
                 .ToListAsync();
 
             return links;
+        }
+
+        public Task<int> GetFridgeProductsCountAsync(Guid fridgeIid)
+        {
+            return Context.FridgeProducts.Where(b => b.FridgeId == fridgeIid).CountAsync();
         }
     }
 }

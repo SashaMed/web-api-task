@@ -15,5 +15,6 @@ namespace Entities.DataTransferObjects
 
         public string Description { get; set; }
         public int DefaultQuantity { get; set; }
+        public int Quantity { get; set; }
     }
 }

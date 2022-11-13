@@ -4,6 +4,7 @@ using Contracts.IRepository;
 using Entities.DataTransferObjects;
 using Entities.Models;
 using Entities.RequestFeatures;
+using Entities.Responces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Repository;
@@ -54,7 +55,7 @@ namespace WebAPI.Controllers
 
 
         [HttpGet("{id}", Name = "FridgeById")]
-        public async Task<IActionResult> GetFridge(Guid id)
+        public async Task<IActionResult> GetFridge(Guid id, RequestParameters request)
         {
             var fridge = await _repositoryManager.Fridge.GetFridgeAsync(id, false);
             if (fridge == null)
@@ -65,11 +66,14 @@ namespace WebAPI.Controllers
             var fridgeModel = await _repositoryManager.FridgeModel.GetFridgeModelAsync(fridge.FridgeModelId, false);
             fridge.FridgeModel = fridgeModel;
             var fridgeDto = _mapper.Map<FridgeDto>(fridge);
-            fridgeDto.Products = await _repositoryManager.FridgeProducts.GetFridgeProductsAsync(id ,
-                new RequestParameters { PageNumber = 1,
-                                        PageSize = 10 
-                });
-            return Ok(fridgeDto);
+            //fridgeDto.Products = await _repositoryManager.FridgeProducts.GetFridgeProductsAsync(id, request);
+            var responce = new GetFridgeDetailsResponce
+            {
+                Fridge = fridgeDto,
+                Products = await _repositoryManager.FridgeProducts.GetFridgeProductsAsync(id, request),
+                ProductsCount = await _repositoryManager.FridgeProducts.GetFridgeProductsCountAsync(id)
+            };
+            return Ok(responce);
         }
 
 
@@ -124,6 +128,20 @@ namespace WebAPI.Controllers
         {
             var models = await _repositoryManager.FridgeModel.GetAllFridgeModelsAsync(false);
             return Ok(models);
+        }
+
+        [HttpDelete("{id}/products/{productId}")]
+        public async Task<IActionResult> DeleteProductFromFridge(Guid id,Guid productId)
+        {
+            var product = await _repositoryManager.Products.GetProductAsync(productId, false);
+            if (product == null)
+            {
+                _logger.LogInfo($"Product with id: {productId} doesn't exist in the database.");
+                return NotFound();
+            }
+            _repositoryManager.FridgeProducts.DeleteProductFromFridge(productId, id);
+            await _repositoryManager.SaveAsync();
+            return NoContent();
         }
     }
 }
