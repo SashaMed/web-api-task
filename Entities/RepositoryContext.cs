@@ -19,10 +19,10 @@ namespace Entities
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.ApplyConfiguration(new FridgeConfiguration());
+            //modelBuilder.ApplyConfiguration(new FridgeConfiguration());
             modelBuilder.ApplyConfiguration(new FridgeModelConfiguration());
-            modelBuilder.ApplyConfiguration(new ProductConfiguration());
-            modelBuilder.ApplyConfiguration(new FridgeProductsConfiguration());
+            //modelBuilder.ApplyConfiguration(new ProductConfiguration());
+            //modelBuilder.ApplyConfiguration(new FridgeProductsConfiguration());
         }
 
 

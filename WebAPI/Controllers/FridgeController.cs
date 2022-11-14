@@ -4,6 +4,7 @@ using Contracts.IRepository;
 using Entities.DataTransferObjects;
 using Entities.Models;
 using Entities.RequestFeatures;
+using Entities.Requests;
 using Entities.Responces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -66,7 +67,6 @@ namespace WebAPI.Controllers
             var fridgeModel = await _repositoryManager.FridgeModel.GetFridgeModelAsync(fridge.FridgeModelId, false);
             fridge.FridgeModel = fridgeModel;
             var fridgeDto = _mapper.Map<FridgeDto>(fridge);
-            //fridgeDto.Products = await _repositoryManager.FridgeProducts.GetFridgeProductsAsync(id, request);
             var responce = new GetFridgeDetailsResponce
             {
                 Fridge = fridgeDto,
@@ -142,6 +142,53 @@ namespace WebAPI.Controllers
             _repositoryManager.FridgeProducts.DeleteProductFromFridge(productId, id);
             await _repositoryManager.SaveAsync();
             return NoContent();
+        }
+
+
+        [HttpGet("{id}/products/outside")]
+        public async Task<IActionResult> GetProductsNotInFridge(Guid id, RequestParameters pagingPrameters)
+        {
+            var fridge = await _repositoryManager.Fridge.GetFridgeAsync(id, trackChanges: false);
+            if (fridge == null)
+            {
+                _logger.LogInfo($"Fridge with id: {id} doesn't exist in the database.");
+                return NotFound();
+            }
+            var fridgeDto = _mapper.Map<FridgeDto>(fridge);
+            var products = await _repositoryManager.FridgeProducts.GetProductsNotFromFridge(id, pagingPrameters);
+            var productsDto = _mapper.Map<IEnumerable<ProductDto>>(products);
+            var responce = new GetProductsNotInFridgeResponce
+            {
+                Products = productsDto,
+                Fridge = fridgeDto,
+                ProductsCount = await _repositoryManager.FridgeProducts.GetProductsNotFromFridgeCount(id)
+            };
+            return Ok(responce);
+        }
+
+
+        [HttpPost("{id}/products")]
+        public async Task<IActionResult> AddProductsToFridge(Guid id, [FromBody] AddProductsRequest request)
+        {
+            var fridge = await _repositoryManager.Fridge.GetFridgeAsync(id, trackChanges: false);
+            if (fridge == null)
+            {
+                _logger.LogInfo($"Fridge with id: {id} doesn't exist in the database.");
+                return NotFound();
+            }
+            if (request.QuantityList.Count() != request.Guids.Count())
+            {
+                _logger.LogInfo($"Length of lists in request does not match");
+                return BadRequest();
+            }
+            var guids = (List<Guid>)request.Guids;
+            var quantityes = (List<int>)request.QuantityList;
+            for (int i = 0; i < guids.Count();i++)
+            {
+                _repositoryManager.FridgeProducts.CreateFridgeProduct(productId:guids[i], fridgeId:id, quantityes[i]);
+            }
+            await _repositoryManager.SaveAsync();
+            return Ok();
         }
     }
 }

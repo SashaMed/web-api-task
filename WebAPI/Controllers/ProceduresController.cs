@@ -22,7 +22,7 @@ namespace WebAPI.Controllers
         }
 
 
-        [HttpGet("procedure")]
+        [HttpPost("procedure")]
         public async Task<IActionResult> ExecStoredProcedure()
         {
             var quantity = await _repositoryManager.CallStoredProcedure();

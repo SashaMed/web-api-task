@@ -11,6 +11,7 @@ namespace Contracts.IRepository
 {
     public interface IFridgeProductsRepository
     {
+        Task<IEnumerable<ProductDto>> GetFridgeProductsAsync(Guid fridgeId);
         Task<IEnumerable<ProductDto>> GetFridgeProductsAsync(Guid fridgeId, RequestParameters pagingPrameters);
         void CreateFridgeProduct(Guid productId, Guid fridgeId, int quantity);
 
@@ -21,5 +22,10 @@ namespace Contracts.IRepository
         void DeleteProduct(Guid productId);
 
         Task<int> GetFridgeProductsCountAsync(Guid fridgeIid);
+
+
+        Task<IEnumerable<Product>> GetProductsNotFromFridge(Guid fridgeIid, RequestParameters parameters);
+        Task<int> GetProductsNotFromFridgeCount(Guid fridgeIid);
+
     }
 }

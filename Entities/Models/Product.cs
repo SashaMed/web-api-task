@@ -17,7 +17,17 @@ namespace Entities.Models
         [MaxLength(60, ErrorMessage = "Maximum length for the Name is 60 characters.")]
         public string Name { get; set; }
 
+        public string ImagePath { get; set; }
         public string Description { get; set; }
         public int DefaultQuantity { get; set; }
+
+        public override bool Equals(object? obj)
+        {
+            Product product = obj as Product;
+            var n = product.Name;
+            if (product != null)
+            return (Id.CompareTo(product.Id) == 0);
+            return false;
+        }
     }
 }

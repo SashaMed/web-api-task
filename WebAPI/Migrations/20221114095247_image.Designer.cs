@@ -4,6 +4,7 @@ using Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace WebAPI.Migrations
 {
     [DbContext(typeof(RepositoryContext))]
-    partial class RepositoryContextModelSnapshot : ModelSnapshot
+    [Migration("20221114095247_image")]
+    partial class image
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -65,32 +67,6 @@ namespace WebAPI.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("FridgeModels");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("c9d4c053-49b6-410c-bc78-2d54a9991870"),
-                            Name = "super atlant 40Byn/month",
-                            Year = 2018
-                        },
-                        new
-                        {
-                            Id = new Guid("3d490a70-94ce-4d15-9494-5248280c2ce3"),
-                            Name = "samsung ldt123",
-                            Year = 2023
-                        },
-                        new
-                        {
-                            Id = new Guid("6a8d51bd-f8f1-4135-9506-63db93d90554"),
-                            Name = "LG g14",
-                            Year = 2020
-                        },
-                        new
-                        {
-                            Id = new Guid("48293f82-faef-46c1-a034-7a15a22eb37c"),
-                            Name = "bekko",
-                            Year = 2022
-                        });
                 });
 
             modelBuilder.Entity("Entities.Models.FridgeProducts", b =>

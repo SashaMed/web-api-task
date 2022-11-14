@@ -67,7 +67,8 @@ namespace Repository.Repositories
                     Name = p.Name,
                     Description = p.Description,
                     DefaultQuantity = p.DefaultQuantity,
-                    Quantity = c.Quantity
+                    Quantity = c.Quantity,
+                    ImagePath = p.ImagePath
                     
                 })
                 .Skip((pagingPrameters.PageNumber - 1) * pagingPrameters.PageSize)
@@ -77,9 +78,77 @@ namespace Repository.Repositories
             return links;
         }
 
+        public async Task<IEnumerable<ProductDto>> GetFridgeProductsAsync(Guid fridgeId)
+        {
+            var links = await Context.FridgeProducts.Where(b => b.FridgeId == fridgeId).Join(Context.Products,
+                c => c.ProductId,
+                p => p.Id,
+                (c, p) => new ProductDto
+                {
+                    Id = p.Id,
+                    Name = p.Name,
+                    Description = p.Description,
+                    DefaultQuantity = p.DefaultQuantity,
+                    Quantity = c.Quantity,
+                    ImagePath = p.ImagePath
+
+                })
+                .ToListAsync();
+
+            return links;
+        }
+
         public Task<int> GetFridgeProductsCountAsync(Guid fridgeIid)
         {
             return Context.FridgeProducts.Where(b => b.FridgeId == fridgeIid).CountAsync();
         }
+
+
+
+        public async Task<IEnumerable<Product>> GetProductsNotFromFridge(Guid fridgeIid, RequestParameters parameters)
+        {
+            var fridgeProducts = await GetFridgeProductsAsync(fridgeIid);
+            List<Product> allProducts = await Context.Products.ToListAsync();
+            foreach (var item in fridgeProducts)
+            {
+                Product product = new Product
+                {
+                    Id = item.Id,
+                    Name = item.Name,
+                    DefaultQuantity = item.DefaultQuantity,
+                    Description = item.Description,
+                    ImagePath = item.ImagePath
+                };
+                if (allProducts.Find(b => b == product) == null)
+                {
+                    allProducts.Remove(product);
+                }
+            }
+            return allProducts.OrderBy(c => c.Id)
+                .Skip((parameters.PageNumber - 1) * parameters.PageSize)
+                .Take(parameters.PageSize);
+        }
+
+        public async Task<int> GetProductsNotFromFridgeCount(Guid fridgeIid)
+        {
+            var fridgeProducts = await GetFridgeProductsAsync(fridgeIid);
+            var allProducts = await Context.Products.ToListAsync();
+            foreach (var item in fridgeProducts)
+            {
+                var product = new Product
+                {
+                    Id = item.Id,
+                    Name = item.Name,
+                    DefaultQuantity = item.DefaultQuantity,
+                    Description = item.Description,
+                    ImagePath = item.ImagePath
+                };
+                if (allProducts.Contains(product))
+                {
+                    allProducts.Remove(product);
+                }
+            }
+            return allProducts.OrderBy(c => c.Id).Count();
+        }   
     }
 }

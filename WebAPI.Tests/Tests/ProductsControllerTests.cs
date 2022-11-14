@@ -202,7 +202,7 @@ namespace WebAPI.Tests.Tests
             var fakeRepo = new FakeRepository();
             fakeRepo.Mock.Setup(s => s.Fridge.GetFridgeAsync(fridgeId, false)).Returns(Task.FromResult(fridge));
             fakeRepo.Mock.Setup(s => s.Products.CreateProduct(product));
-            fakeRepo.Mock.Setup(s => s.FridgeProducts.CreateFridgeProduct(product.Id, fridgeId));
+            fakeRepo.Mock.Setup(s => s.FridgeProducts.CreateFridgeProduct(product.Id, fridgeId, 1));
 
             var request = new ProductCreationDto
             {
