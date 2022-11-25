@@ -4,6 +4,7 @@ using Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace WebAPI.Migrations
 {
     [DbContext(typeof(RepositoryContext))]
-    partial class RepositoryContextModelSnapshot : ModelSnapshot
+    [Migration("20221122172346_AddedEntitiesToDb")]
+    partial class AddedEntitiesToDb
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -135,14 +137,14 @@ namespace WebAPI.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("dfca294a-f1b7-4ed7-b821-9a077f8de1ec"),
+                            Id = new Guid("1e82e13d-d9d0-4ed3-a54e-8ac67457f427"),
                             FridgeId = new Guid("10061240-8b43-47a7-9efe-d2c176cc8bb8"),
                             ProductId = new Guid("c9d4c053-49b6-410c-bc78-2d54a9991870"),
                             Quantity = 3
                         },
                         new
                         {
-                            Id = new Guid("4497d9a5-b561-4898-a5fc-c6c6ef57b048"),
+                            Id = new Guid("7900ec74-353e-4571-baf2-5ef26d7f82b1"),
                             FridgeId = new Guid("acfff7cb-1804-4ee3-8923-f1e947175f15"),
                             ProductId = new Guid("3d490a70-94ce-4d15-9494-5248280c2ce3"),
                             Quantity = 10
@@ -219,6 +221,10 @@ namespace WebAPI.Migrations
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("datetimeoffset");
 
+                    b.Property<string>("NickName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
@@ -236,18 +242,8 @@ namespace WebAPI.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
 
-                    b.Property<string>("RefreshToken")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("TokenCreated")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("TokenExpires")
-                        .HasColumnType("datetime2");
 
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("bit");
@@ -298,15 +294,15 @@ namespace WebAPI.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "de82649f-4b9e-48e5-a2c7-e4718184808d",
-                            ConcurrencyStamp = "11032647-3a1d-4176-b80c-37d9eeefc95f",
+                            Id = "ded37f60-b0d9-4db5-b1bd-be8b2db4dd3c",
+                            ConcurrencyStamp = "0fb7a0a8-9bb1-4595-835e-7ded659d0e82",
                             Name = "Manager",
                             NormalizedName = "MANAGER"
                         },
                         new
                         {
-                            Id = "fea8f1bc-782c-41fa-8eca-4642414a9e06",
-                            ConcurrencyStamp = "bc3cf69f-ee73-44de-92d5-888817332920",
+                            Id = "1c3edde5-85cb-4698-b40d-6ae950ca3f1e",
+                            ConcurrencyStamp = "71d17f8e-7e78-4334-afe9-226a23e7b00a",
                             Name = "Administrator",
                             NormalizedName = "ADMINISTRATOR"
                         });

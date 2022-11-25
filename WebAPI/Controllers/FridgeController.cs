@@ -6,6 +6,7 @@ using Entities.Models;
 using Entities.RequestFeatures;
 using Entities.Requests;
 using Entities.Responces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Repository;
@@ -77,7 +78,7 @@ namespace WebAPI.Controllers
         }
 
 
-
+        [Authorize]
         [HttpPost]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> CreateFridge([FromBody] FridgeCreationDto fridge)
@@ -90,6 +91,7 @@ namespace WebAPI.Controllers
         }
 
 
+        [Authorize]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteFridge(Guid id)
         {
@@ -107,6 +109,7 @@ namespace WebAPI.Controllers
         }
 
 
+        [Authorize]
         [HttpPut("{id}")]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> UpdateFridge(Guid id, [FromBody] FridgeCreationDto fridge)
@@ -130,6 +133,7 @@ namespace WebAPI.Controllers
             return Ok(models);
         }
 
+        [Authorize]
         [HttpDelete("{id}/products/{productId}")]
         public async Task<IActionResult> DeleteProductFromFridge(Guid id,Guid productId)
         {
@@ -166,7 +170,7 @@ namespace WebAPI.Controllers
             return Ok(responce);
         }
 
-
+        [Authorize]
         [HttpPost("{id}/products")]
         public async Task<IActionResult> AddProductsToFridge(Guid id, [FromBody] AddProductsRequest request)
         {
@@ -183,7 +187,7 @@ namespace WebAPI.Controllers
             }
             var guids = (List<Guid>)request.Guids;
             var quantityes = (List<int>)request.QuantityList;
-            for (int i = 0; i < guids.Count();i++)
+            for (int i = 0; i < guids.Count(); i++)
             {
                 _repositoryManager.FridgeProducts.CreateFridgeProduct(productId:guids[i], fridgeId:id, quantityes[i]);
             }

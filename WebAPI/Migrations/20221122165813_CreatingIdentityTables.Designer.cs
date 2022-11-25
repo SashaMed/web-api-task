@@ -4,6 +4,7 @@ using Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,10 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace WebAPI.Migrations
 {
     [DbContext(typeof(RepositoryContext))]
-    partial class RepositoryContextModelSnapshot : ModelSnapshot
+    [Migration("20221122165813_CreatingIdentityTables")]
+    partial class CreatingIdentityTables
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -46,22 +48,6 @@ namespace WebAPI.Migrations
                     b.HasIndex("FridgeModelId");
 
                     b.ToTable("Fridges");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("10061240-8b43-47a7-9efe-d2c176cc8bb8"),
-                            FridgeModelId = new Guid("c9d4c053-49b6-410c-bc78-2d54a9991870"),
-                            Name = "atlant",
-                            OwnerName = "sasha"
-                        },
-                        new
-                        {
-                            Id = new Guid("acfff7cb-1804-4ee3-8923-f1e947175f15"),
-                            FridgeModelId = new Guid("3d490a70-94ce-4d15-9494-5248280c2ce3"),
-                            Name = "samsung",
-                            OwnerName = "anna"
-                        });
                 });
 
             modelBuilder.Entity("Entities.Models.FridgeModel", b =>
@@ -131,22 +117,6 @@ namespace WebAPI.Migrations
                     b.HasIndex("ProductId");
 
                     b.ToTable("FridgeProducts");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("dfca294a-f1b7-4ed7-b821-9a077f8de1ec"),
-                            FridgeId = new Guid("10061240-8b43-47a7-9efe-d2c176cc8bb8"),
-                            ProductId = new Guid("c9d4c053-49b6-410c-bc78-2d54a9991870"),
-                            Quantity = 3
-                        },
-                        new
-                        {
-                            Id = new Guid("4497d9a5-b561-4898-a5fc-c6c6ef57b048"),
-                            FridgeId = new Guid("acfff7cb-1804-4ee3-8923-f1e947175f15"),
-                            ProductId = new Guid("3d490a70-94ce-4d15-9494-5248280c2ce3"),
-                            Quantity = 10
-                        });
                 });
 
             modelBuilder.Entity("Entities.Models.Product", b =>
@@ -174,24 +144,6 @@ namespace WebAPI.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Products");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("c9d4c053-49b6-410c-bc78-2d54a9991870"),
-                            DefaultQuantity = 1,
-                            Description = "yummy",
-                            ImagePath = "https://www.uavgusta.net/upload/resize_cache/iblock/d5c/740_740_2/15_faktov_o_roli_vody_v_zhizni_cheloveka.jpg",
-                            Name = "watermelon"
-                        },
-                        new
-                        {
-                            Id = new Guid("3d490a70-94ce-4d15-9494-5248280c2ce3"),
-                            DefaultQuantity = 3,
-                            Description = "",
-                            ImagePath = "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b0/Parque_Nacional_de_Bras%C3%ADlia_%2814543997474%29.jpg/274px-Parque_Nacional_de_Bras%C3%ADlia_%2814543997474%29.jpg",
-                            Name = "milk"
-                        });
                 });
 
             modelBuilder.Entity("Entities.Models.User", b =>
@@ -219,6 +171,10 @@ namespace WebAPI.Migrations
                     b.Property<DateTimeOffset?>("LockoutEnd")
                         .HasColumnType("datetimeoffset");
 
+                    b.Property<string>("NickName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("NormalizedEmail")
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
@@ -236,18 +192,8 @@ namespace WebAPI.Migrations
                     b.Property<bool>("PhoneNumberConfirmed")
                         .HasColumnType("bit");
 
-                    b.Property<string>("RefreshToken")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("SecurityStamp")
                         .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("TokenCreated")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("TokenExpires")
-                        .HasColumnType("datetime2");
 
                     b.Property<bool>("TwoFactorEnabled")
                         .HasColumnType("bit");
@@ -294,22 +240,6 @@ namespace WebAPI.Migrations
                         .HasFilter("[NormalizedName] IS NOT NULL");
 
                     b.ToTable("AspNetRoles", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = "de82649f-4b9e-48e5-a2c7-e4718184808d",
-                            ConcurrencyStamp = "11032647-3a1d-4176-b80c-37d9eeefc95f",
-                            Name = "Manager",
-                            NormalizedName = "MANAGER"
-                        },
-                        new
-                        {
-                            Id = "fea8f1bc-782c-41fa-8eca-4642414a9e06",
-                            ConcurrencyStamp = "bc3cf69f-ee73-44de-92d5-888817332920",
-                            Name = "Administrator",
-                            NormalizedName = "ADMINISTRATOR"
-                        });
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

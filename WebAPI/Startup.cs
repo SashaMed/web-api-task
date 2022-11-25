@@ -45,6 +45,7 @@ namespace WebAPI
                 ForwardedHeaders = ForwardedHeaders.All
             });
             app.UseRouting();
+            app.UseAuthentication();
             app.UseAuthorization();
             app.UseEndpoints(endpoints =>
             {
@@ -54,11 +55,15 @@ namespace WebAPI
 
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddAuthentication();
+            services.ConfigureIdentity();
+            services.ConfigureJWT(Configuration);
             services.AddScoped<ValidationFilterAttribute>();
             services.Configure<ApiBehaviorOptions>(options =>
             {
                 options.SuppressModelStateInvalidFilter = true;
             });
+            services.ConfigureAuthenticationManager();
             services.ConfigureCors();
             services.ConfigureIISIntegration();
             services.AddEndpointsApiExplorer();

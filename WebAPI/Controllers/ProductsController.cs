@@ -9,6 +9,7 @@ using Entities.Models;
 using WebAPI.Utils.ActionFilters;
 using Entities.RequestFeatures;
 using Entities.Responces;
+using Microsoft.AspNetCore.Authorization;
 
 namespace WebAPI.Controllers
 {
@@ -29,7 +30,9 @@ namespace WebAPI.Controllers
         [HttpGet]
         public async Task<IActionResult> GetProducts(RequestParameters pagingPrameters)
         {
-            var products = await _repositoryManager.Products.GetAllProductsAsync(pagingPrameters, false);
+            //var currentUrl = HttpContext.Current.Request;
+
+			var products = await _repositoryManager.Products.GetAllProductsAsync(pagingPrameters, false);
             var productsDto = _mapper.Map<IEnumerable<ProductDto>>(products);
             var productCount = await _repositoryManager.Products.GetProductCountAsync();
             var responce = new GetAllProductsResponce
@@ -54,7 +57,7 @@ namespace WebAPI.Controllers
             return Ok(productsDto);
         }
 
-
+        [Authorize]
         [HttpPost("{fridgeId}")]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> CreateProduct(Guid fridgeId, [FromBody] ProductCreationDto product)
@@ -75,7 +78,7 @@ namespace WebAPI.Controllers
             return CreatedAtRoute("GetProductByFridgeId", new { fridgeId, id = toReturn.Id }, toReturn);
         }
 
-
+        [Authorize]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProduct(Guid id)
         {
@@ -92,10 +95,10 @@ namespace WebAPI.Controllers
             return NoContent();
         }
 
-
+        //[Authorize]
         [HttpPut("{id}")]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
-        public async Task<IActionResult> UpdateProduct(Guid id, [FromBody] ProductCreationDto product)
+        public async Task<IActionResult> UpdateProduct(Guid id, [FromBody] ProductUpdateDto product)
         {
             var productEntity = await _repositoryManager.Products.GetProductAsync(id, true);
             if (productEntity == null)

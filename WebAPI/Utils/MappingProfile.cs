@@ -14,6 +14,8 @@ namespace WebAPI.Utils
 
             CreateMap<FridgeCreationDto, Fridge>();
             CreateMap<ProductCreationDto, Product>();
+            CreateMap<ProductUpdateDto, Product>();
+            CreateMap<UserForRegistrationDto, User>();
         }
     }
 }

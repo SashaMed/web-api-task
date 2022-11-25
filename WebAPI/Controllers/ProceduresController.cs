@@ -3,6 +3,7 @@ using Contracts.IRepository;
 using Contracts;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
 
 namespace WebAPI.Controllers
 {
@@ -20,7 +21,6 @@ namespace WebAPI.Controllers
             _logger = loggerManager;
             _mapper = mapper;
         }
-
 
         [HttpPost("procedure")]
         public async Task<IActionResult> ExecStoredProcedure()

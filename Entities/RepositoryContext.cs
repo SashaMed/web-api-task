@@ -1,5 +1,6 @@
 ﻿using Entities.DbConfiguration;
 using Entities.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -10,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace Entities
 {
-    public class RepositoryContext : DbContext
+    public class RepositoryContext : IdentityDbContext<User>
     {
         public RepositoryContext(DbContextOptions options) : base(options)
         {
@@ -19,10 +20,12 @@ namespace Entities
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            //modelBuilder.ApplyConfiguration(new FridgeConfiguration());
+            base.OnModelCreating(modelBuilder);
+            modelBuilder.ApplyConfiguration(new FridgeConfiguration());
             modelBuilder.ApplyConfiguration(new FridgeModelConfiguration());
-            //modelBuilder.ApplyConfiguration(new ProductConfiguration());
-            //modelBuilder.ApplyConfiguration(new FridgeProductsConfiguration());
+            modelBuilder.ApplyConfiguration(new ProductConfiguration());
+            modelBuilder.ApplyConfiguration(new FridgeProductsConfiguration());
+            modelBuilder.ApplyConfiguration(new RoleConfiguration());   
         }
 
 
