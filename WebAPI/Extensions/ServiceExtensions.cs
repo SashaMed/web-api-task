@@ -1,6 +1,4 @@
-﻿using Contracts;
-using Contracts.IRepository;
-using Entities;
+﻿using Entities;
 using Entities.Models;
 using LoggerService;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -8,6 +6,10 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Repository;
+using Repository.IRepository;
+using Services.Contracts;
+using Services.FridgeService;
+using Services.ProductsService;
 using System.Text;
 using WebAPI.Service;
 
@@ -32,6 +34,11 @@ namespace WebAPI.Extensions
         public static void ConfigureLoggerService(this IServiceCollection services) =>
             services.AddScoped<ILoggerManager, LoggerManager>();
 
+        public static void ConfigureFridgeService(this IServiceCollection services) =>
+            services.AddScoped<IFridgeService, FridgeService>();
+
+        public static void ConfigureProductsService(this IServiceCollection services) =>
+            services.AddScoped<IProductsService, ProductsService>();
 
         public static void ConfigureSqlContext(this IServiceCollection services,IConfiguration configuration) =>
             services.AddDbContext<RepositoryContext>(opts =>

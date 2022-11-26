@@ -1,6 +1,7 @@
 ﻿//using Contracts;
 using Microsoft.Extensions.Logging;
 using NLog;
+using Services.Contracts;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +11,7 @@ using ILogger = NLog.ILogger;
 
 namespace LoggerService
 {
-    public class LoggerManager //: ILoggerManager
+    public class LoggerManager : ILoggerManager
     {
         private static ILogger logger = LogManager.GetCurrentClassLogger();
 

@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using Contracts;
 using Entities.DataTransferObjects;
 using Entities.Helpers;
 using Entities.Models;
@@ -8,6 +7,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
+using Services.Contracts;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;

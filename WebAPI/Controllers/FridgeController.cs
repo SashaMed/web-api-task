@@ -1,6 +1,4 @@
 ﻿using AutoMapper;
-using Contracts;
-using Contracts.IRepository;
 using Entities.DataTransferObjects;
 using Entities.Models;
 using Entities.RequestFeatures;
@@ -10,6 +8,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Repository;
+using Repository.IRepository;
+using Services.Contracts;
 using System;
 using WebAPI.Utils.ActionFilters;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory.Database;
@@ -22,19 +22,22 @@ namespace WebAPI.Controllers
         private IRepositoryManager _repositoryManager;
         private ILoggerManager _logger;
         private IMapper _mapper;
+        private IFridgeService _fridgeService;
 
-        public FridgeController(IRepositoryManager repositoryManager, ILoggerManager loggerManager, IMapper mapper)
+        public FridgeController(IRepositoryManager repositoryManager, ILoggerManager loggerManager, 
+            IMapper mapper, IFridgeService fridgeService)
         {
             _repositoryManager = repositoryManager;
             _logger = loggerManager;
             _mapper = mapper;   
+            _fridgeService = fridgeService;
         }
 
+        //[Authorize]
         [HttpGet]
         public async Task<IActionResult> GetFridges()
         {
-            var fridges = await _repositoryManager.Fridge.GetAllFridgesWithModels(false);
-            var fridgesDto = _mapper.Map<IEnumerable<FridgeDto>>(fridges);
+            var fridgesDto = await _fridgeService.GetFridges();
             return Ok(fridgesDto);
         }
 
@@ -49,8 +52,7 @@ namespace WebAPI.Controllers
                 _logger.LogInfo($"Fridge with id: {id} doesn't exist in the database.");
                 return NotFound();
             }
-            var products = await _repositoryManager.FridgeProducts.GetFridgeProductsAsync(id, pagingPrameters);
-            var productsDto = _mapper.Map<IEnumerable<ProductDto>>(products);
+            var productsDto = await _fridgeService.GetProductsByFridgeId(id, pagingPrameters);
             return Ok(productsDto);
         }
 
@@ -65,15 +67,7 @@ namespace WebAPI.Controllers
                 _logger.LogInfo($"Fridge with id: {id} doesn't exist in the database.");
                 return NotFound();
             }
-            var fridgeModel = await _repositoryManager.FridgeModel.GetFridgeModelAsync(fridge.FridgeModelId, false);
-            fridge.FridgeModel = fridgeModel;
-            var fridgeDto = _mapper.Map<FridgeDto>(fridge);
-            var responce = new GetFridgeDetailsResponce
-            {
-                Fridge = fridgeDto,
-                Products = await _repositoryManager.FridgeProducts.GetFridgeProductsAsync(id, request),
-                ProductsCount = await _repositoryManager.FridgeProducts.GetFridgeProductsCountAsync(id)
-            };
+            var responce = await _fridgeService.GetFridge(id, request);
             return Ok(responce);
         }
 
@@ -83,10 +77,11 @@ namespace WebAPI.Controllers
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> CreateFridge([FromBody] FridgeCreationDto fridge)
         {
-            var fridgeEntity = _mapper.Map<Fridge>(fridge);
-            _repositoryManager.Fridge.CreateFridge(fridgeEntity);
-            await _repositoryManager.SaveAsync();
-            var toReturn = _mapper.Map<FridgeDto>(fridgeEntity);
+            if (!ModelState.IsValid)
+            {
+                return BadRequest();
+            }
+            var toReturn = await _fridgeService.CreateFridge(fridge);
             return CreatedAtRoute("FridgeById", new {id = toReturn.Id}, toReturn);
         }
 
@@ -101,10 +96,7 @@ namespace WebAPI.Controllers
                 _logger.LogInfo($"Fridge with id: {id} doesn't exist in the database.");
                 return NotFound();
             }
-            _repositoryManager.FridgeProducts.DeleteFridgeProducts(id);
-            _repositoryManager.Fridge.DeleteFridge(fridge);
-            await _repositoryManager.SaveAsync();
-
+            await _fridgeService.DeleteFridge(id, fridge);
             return NoContent();
         }
 
@@ -143,8 +135,7 @@ namespace WebAPI.Controllers
                 _logger.LogInfo($"Product with id: {productId} doesn't exist in the database.");
                 return NotFound();
             }
-            _repositoryManager.FridgeProducts.DeleteProductFromFridge(productId, id);
-            await _repositoryManager.SaveAsync();
+            await _fridgeService.DeleteProductFromFridge(id, productId);
             return NoContent();
         }
 
@@ -158,15 +149,7 @@ namespace WebAPI.Controllers
                 _logger.LogInfo($"Fridge with id: {id} doesn't exist in the database.");
                 return NotFound();
             }
-            var fridgeDto = _mapper.Map<FridgeDto>(fridge);
-            var products = await _repositoryManager.FridgeProducts.GetProductsNotFromFridge(id, pagingPrameters);
-            var productsDto = _mapper.Map<IEnumerable<ProductDto>>(products);
-            var responce = new GetProductsNotInFridgeResponce
-            {
-                Products = productsDto,
-                Fridge = fridgeDto,
-                ProductsCount = await _repositoryManager.FridgeProducts.GetProductsNotFromFridgeCount(id)
-            };
+            var responce = await _fridgeService.GetProductsNotInFridge(id, pagingPrameters);
             return Ok(responce);
         }
 
@@ -185,13 +168,7 @@ namespace WebAPI.Controllers
                 _logger.LogInfo($"Length of lists in request does not match");
                 return BadRequest();
             }
-            var guids = (List<Guid>)request.Guids;
-            var quantityes = (List<int>)request.QuantityList;
-            for (int i = 0; i < guids.Count(); i++)
-            {
-                _repositoryManager.FridgeProducts.CreateFridgeProduct(productId:guids[i], fridgeId:id, quantityes[i]);
-            }
-            await _repositoryManager.SaveAsync();
+            await _fridgeService.AddProductsToFridge(id, request);
             return Ok();
         }
     }

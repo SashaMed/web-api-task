@@ -1,6 +1,6 @@
-﻿using Contracts;
-using Entities.ErrorModel;
+﻿using Entities.ErrorModel;
 using Microsoft.AspNetCore.Diagnostics;
+using Services.Contracts;
 using System.Net;
 
 namespace WebAPI.Extensions

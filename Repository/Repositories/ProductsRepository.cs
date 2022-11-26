@@ -1,8 +1,8 @@
-﻿using Contracts.IRepository;
-using Entities;
+﻿using Entities;
 using Entities.Models;
 using Entities.RequestFeatures;
 using Microsoft.EntityFrameworkCore;
+using Repository.IRepository;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -5,10 +5,10 @@ using WebAPI.Extensions;
 using LoggerService;
 using NLog;
 using Microsoft.EntityFrameworkCore.Design;
-using Contracts;
 using Microsoft.AspNetCore.Mvc;
 using WebAPI.Utils.ActionFilters;
 using Entities;
+using Services.Contracts;
 
 namespace WebAPI
 {
@@ -69,6 +69,8 @@ namespace WebAPI
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen();
             services.ConfigureLoggerService();
+            services.ConfigureFridgeService();
+            services.ConfigureProductsService();
             services.ConfigureSqlContext(Configuration);
             services.ConfigureRepositoryManager();
             services.AddAutoMapper(typeof(Startup));

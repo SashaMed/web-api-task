@@ -1,5 +1,5 @@
-using Contracts;
 using Microsoft.AspNetCore.Mvc;
+using Services.Contracts;
 
 namespace WebAPI.Controllers
 {

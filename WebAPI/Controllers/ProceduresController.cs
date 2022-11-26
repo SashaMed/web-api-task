@@ -1,9 +1,9 @@
 ﻿using AutoMapper;
-using Contracts.IRepository;
-using Contracts;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
+using Repository.IRepository;
+using Services.Contracts;
 
 namespace WebAPI.Controllers
 {

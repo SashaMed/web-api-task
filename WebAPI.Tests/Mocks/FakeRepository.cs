@@ -1,5 +1,6 @@
-﻿using Contracts.IRepository;
+﻿
 using Moq;
+using Repository.IRepository;
 using System;
 using System.Collections.Generic;
 using System.Linq;

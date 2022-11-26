@@ -1,7 +1,7 @@
-﻿using Contracts.IRepository;
-using Entities;
+﻿using Entities;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Repository.IRepository;
 using Repository.Repositories;
 using System;
 using System.Collections.Generic;
