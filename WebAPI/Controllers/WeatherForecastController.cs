@@ -8,11 +8,8 @@ namespace WebAPI.Controllers
     public class WeatherForecastController : ControllerBase
     {
 
-
-        private ILoggerManager customLogger;
-        public WeatherForecastController(ILoggerManager logger)
+        public WeatherForecastController()
         {
-            customLogger = logger;
         }
 
 
@@ -25,10 +22,7 @@ namespace WebAPI.Controllers
         [HttpGet(Name = "GetWeatherForecast")]
         public IEnumerable<WeatherForecast> Get()
         {
-            customLogger.LogInfo("Here is info message from our values controller.");
-            customLogger.LogDebug("Here is debug message from our values controller.");
-            customLogger.LogWarn("Here is warn message from our values controller.");
-            customLogger.LogError("Here is an error message from our values controller.");
+
             return Enumerable.Range(1, 5).Select(index => new WeatherForecast
             {
                 Date = DateTime.Now.AddDays(index),

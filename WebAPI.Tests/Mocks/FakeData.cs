@@ -10,20 +10,20 @@ namespace WebAPI.Tests.Mocks
 {
     internal static class FakeData
     {
-        public static IEnumerable<Fridge> Fridges
+        public static IEnumerable<FridgeDto> Fridges
         {
             get
             {
-                IEnumerable<Fridge> fridges = new List<Fridge>()
+                IEnumerable<FridgeDto> fridges = new List<FridgeDto>()
                 {
-                    new Fridge()
+                    new FridgeDto()
                     {
                         Id = new Guid("10061240-8b43-47a7-9efe-d2c176cc8bb8"),
                         Name = "123",
                         OwnerName = "ne sasha",
                         FridgeModelId = new Guid("c9d4c053-49b6-410c-bc78-2d54a9991870")
                     },
-                    new Fridge()
+                    new FridgeDto()
                     {
                         Id = new Guid("0b57d31d-3a23-4c83-9483-08dac0156203"),
                         Name = "Atlant",
