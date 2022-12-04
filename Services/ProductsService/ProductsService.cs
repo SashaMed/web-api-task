@@ -43,7 +43,12 @@ namespace Services.ProductsService
             await _repositoryManager.SaveAsync();
         }
 
-        public async Task<GetAllProductsResponce> GetProducts(RequestParameters pagingPrameters)
+		public async Task<Product> GetProductAsync(Guid id, bool trackChanges)
+		{
+            return await _repositoryManager.Products.GetProductAsync(id, trackChanges);
+		}
+
+		public async Task<GetAllProductsResponce> GetProducts(RequestParameters pagingPrameters)
         {
             var products = await _repositoryManager.Products.GetAllProductsAsync(pagingPrameters, false);
             var productsDto = _mapper.Map<IEnumerable<ProductDto>>(products);

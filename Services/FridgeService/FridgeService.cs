@@ -58,7 +58,12 @@ namespace Services.FridgeService
             await _repositoryManager.SaveAsync();
         }
 
-        public async Task<GetFridgeDetailsResponce> GetFridge(Guid id, RequestParameters pagingPrameters)
+		public async Task<IEnumerable<FridgeModel>> GetAllFridgeModelsAsync()
+		{
+            return await _repositoryManager.FridgeModel.GetAllFridgeModelsAsync(false);
+		}
+
+		public async Task<GetFridgeDetailsResponce> GetFridge(Guid id, RequestParameters pagingPrameters)
         {
             var fridge = await _repositoryManager.Fridge.GetFridgeAsync(id, false);
             var fridgeModel = await _repositoryManager.FridgeModel.GetFridgeModelAsync(fridge.FridgeModelId, false);
@@ -80,7 +85,12 @@ namespace Services.FridgeService
             return responce;
         }
 
-        public async Task<IEnumerable<FridgeDto>> GetFridges()
+		public async Task<Fridge> GetFridgeAsync(Guid id, bool trackChanges)
+		{
+			return await _repositoryManager.Fridge.GetFridgeAsync(id, trackChanges);
+		}
+
+		public async Task<IEnumerable<FridgeDto>> GetFridges()
         {
             var fridges = await _repositoryManager.Fridge.GetAllFridgesWithModels(false);
             var fridgesDto = _mapper.Map<IEnumerable<FridgeDto>>(fridges);
@@ -108,5 +118,12 @@ namespace Services.FridgeService
             };
             return responce;
         }
-    }
+
+		public async Task UpdateFridge(Guid id, FridgeCreationDto fridge)
+		{
+			var fridgeEntity = await _repositoryManager.Fridge.GetFridgeAsync(id, trackChanges: false);
+			_mapper.Map(fridge, fridgeEntity);
+			await _repositoryManager.SaveAsync();
+		}
+	}
 }

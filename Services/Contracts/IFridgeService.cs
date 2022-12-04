@@ -4,6 +4,7 @@ using Entities.RequestFeatures;
 using Entities.Requests;
 using Entities.Responces;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -24,5 +25,12 @@ namespace Services.Contracts
         Task<FridgeDto> CreateFridge(FridgeCreationDto fridge);
 
         Task DeleteProductFromFridge(Guid id, Guid productId);
-    }
+
+        Task<Fridge> GetFridgeAsync(Guid id, bool trackChanges);
+
+        Task UpdateFridge(Guid id, FridgeCreationDto fridge);
+
+        Task<IEnumerable<FridgeModel>> GetAllFridgeModelsAsync();
+
+	}
 }

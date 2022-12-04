@@ -1,4 +1,5 @@
 ﻿using Entities.DataTransferObjects;
+using Entities.Models;
 using Entities.RequestFeatures;
 using Entities.Responces;
 using System;
@@ -18,5 +19,7 @@ namespace Services.Contracts
         Task DeleteProduct(Guid id);
 
         Task UpdateProduct(Guid id, ProductUpdateDto product);
+
+        Task<Product> GetProductAsync(Guid id, bool trackChanges); 
     }
 }

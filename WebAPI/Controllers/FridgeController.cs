@@ -19,21 +19,16 @@ namespace WebAPI.Controllers
     [Route("api/fridges")]
     public class FridgeController : ControllerBase
     {
-        private IRepositoryManager _repositoryManager;
         private ILoggerManager _logger;
-        private IMapper _mapper;
         private IFridgeService _fridgeService;
 
-        public FridgeController(IRepositoryManager repositoryManager, ILoggerManager loggerManager, 
-            IMapper mapper, IFridgeService fridgeService)
+        public FridgeController(ILoggerManager loggerManager, IFridgeService fridgeService)
         {
-            _repositoryManager = repositoryManager;
             _logger = loggerManager;
-            _mapper = mapper;   
             _fridgeService = fridgeService;
         }
 
-        //[Authorize]
+
         [HttpGet]
         public async Task<IActionResult> GetFridges()
         {
@@ -46,7 +41,7 @@ namespace WebAPI.Controllers
         [HttpGet("{id}/products", Name = "GetProductByFridgeId")]
         public async Task<IActionResult> GetProductsByFridgeId(Guid id, RequestParameters pagingPrameters)
         {
-            var fridge = await _repositoryManager.Fridge.GetFridgeAsync(id, trackChanges: false);
+            var fridge = await _fridgeService.GetFridgeAsync(id, trackChanges: false);
             if (fridge == null)
             {
                 _logger.LogInfo($"Fridge with id: {id} doesn't exist in the database.");
@@ -61,8 +56,8 @@ namespace WebAPI.Controllers
         [HttpGet("{id}", Name = "FridgeById")]
         public async Task<IActionResult> GetFridge(Guid id, RequestParameters request)
         {
-            var fridge = await _repositoryManager.Fridge.GetFridgeAsync(id, false);
-            if (fridge == null)
+            var fridge = await _fridgeService.GetFridgeAsync(id, trackChanges: false);
+			if (fridge == null)
             {
                 _logger.LogInfo($"Fridge with id: {id} doesn't exist in the database.");
                 return NotFound();
@@ -90,8 +85,8 @@ namespace WebAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteFridge(Guid id)
         {
-            var fridge = await _repositoryManager.Fridge.GetFridgeAsync(id, false);
-            if (fridge == null)
+            var fridge = await _fridgeService.GetFridgeAsync(id, trackChanges: false);
+			if (fridge == null)
             {
                 _logger.LogInfo($"Fridge with id: {id} doesn't exist in the database.");
                 return NotFound();
@@ -106,22 +101,20 @@ namespace WebAPI.Controllers
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> UpdateFridge(Guid id, [FromBody] FridgeCreationDto fridge)
         {
-            var fridgeEntity = await _repositoryManager.Fridge.GetFridgeAsync(id, true);
+            var fridgeEntity = await _fridgeService.GetFridgeAsync(id, trackChanges: false);
             if (fridgeEntity == null)
             {
                 _logger.LogInfo($"Fridge with id: {id} doesn't exist in the database.");
                 return NotFound();
             }
-
-            _mapper.Map(fridge, fridgeEntity);
-            await _repositoryManager.SaveAsync();
+            await _fridgeService.UpdateFridge(id, fridge);
             return NoContent();
         }
 
         [HttpGet("models")]
         public async Task<IActionResult> GetFridgeModels()
         {
-            var models = await _repositoryManager.FridgeModel.GetAllFridgeModelsAsync(false);
+            var models = await _fridgeService.GetAllFridgeModelsAsync();
             return Ok(models);
         }
 
@@ -129,8 +122,8 @@ namespace WebAPI.Controllers
         [HttpDelete("{id}/products/{productId}")]
         public async Task<IActionResult> DeleteProductFromFridge(Guid id,Guid productId)
         {
-            var product = await _repositoryManager.Products.GetProductAsync(productId, false);
-            if (product == null)
+            var product = await _fridgeService.GetFridgeAsync(id, trackChanges: false);
+			if (product == null)
             {
                 _logger.LogInfo($"Product with id: {productId} doesn't exist in the database.");
                 return NotFound();
@@ -143,8 +136,8 @@ namespace WebAPI.Controllers
         [HttpGet("{id}/products/outside")]
         public async Task<IActionResult> GetProductsNotInFridge(Guid id, RequestParameters pagingPrameters)
         {
-            var fridge = await _repositoryManager.Fridge.GetFridgeAsync(id, trackChanges: false);
-            if (fridge == null)
+            var fridge = await _fridgeService.GetFridgeAsync(id, trackChanges: false);
+			if (fridge == null)
             {
                 _logger.LogInfo($"Fridge with id: {id} doesn't exist in the database.");
                 return NotFound();
@@ -157,8 +150,8 @@ namespace WebAPI.Controllers
         [HttpPost("{id}/products")]
         public async Task<IActionResult> AddProductsToFridge(Guid id, [FromBody] AddProductsRequest request)
         {
-            var fridge = await _repositoryManager.Fridge.GetFridgeAsync(id, trackChanges: false);
-            if (fridge == null)
+            var fridge = await _fridgeService.GetFridgeAsync(id, trackChanges: false);
+			if (fridge == null)
             {
                 _logger.LogInfo($"Fridge with id: {id} doesn't exist in the database.");
                 return NotFound();

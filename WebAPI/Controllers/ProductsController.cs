@@ -16,15 +16,13 @@ namespace WebAPI.Controllers
     [Route("api/products")]
     public class ProductsController : ControllerBase
     {
-        private IRepositoryManager _repositoryManager;
         private ILoggerManager _logger;
         private IMapper _mapper;
         private IProductsService _productsService;
 
-        public ProductsController(IRepositoryManager repositoryManager, ILoggerManager loggerManager,
+        public ProductsController(ILoggerManager loggerManager,
             IMapper mapper, IProductsService productsService)
         {
-            _repositoryManager = repositoryManager;
             _logger = loggerManager;
             _mapper = mapper;
             _productsService = productsService;
@@ -41,8 +39,8 @@ namespace WebAPI.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetSingleProductById( Guid id)
         {
-            var product = await _repositoryManager.Products.GetProductAsync(id, trackChanges: false);
-            if (product == null)
+            var product = await _productsService.GetProductAsync(id, false);
+			if (product == null)
             {
                 _logger.LogInfo($"Product with id: {id} doesn't exist in the database.");
                 return NotFound();
@@ -64,8 +62,8 @@ namespace WebAPI.Controllers
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProduct(Guid id)
         {
-            var product = await _repositoryManager.Products.GetProductAsync(id, false);
-            if (product == null)
+            var product = await _productsService.GetProductAsync(id, false);
+			if (product == null)
             {
                 _logger.LogInfo($"Product with id: {id} doesn't exist in the database.");
                 return NotFound();
@@ -80,7 +78,7 @@ namespace WebAPI.Controllers
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> UpdateProduct(Guid id, [FromBody] ProductUpdateDto product)
         {
-            var productEntity = await _repositoryManager.Products.GetProductAsync(id, true);
+            var productEntity = await _productsService.GetProductAsync(id, true);
             if (productEntity == null)
             {
                 _logger.LogInfo($"Product with id: {id} doesn't exist in the database.");
